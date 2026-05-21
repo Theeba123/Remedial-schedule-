@@ -56,23 +56,25 @@
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
-        .student-class { font-size: 14px; color: #3b82f6; background: #eff6ff; padding: 2px 8px; border-radius: 4px; }
+        .student-class { font-size: 14px; color: #3b82f6; background: #eff6ff; padding: 4px 10px; border-radius: 4px; }
         
         /* Day and Slot Breakdown */
-        .day-section { margin-top: 10px; }
-        .day-title { font-weight: 600; color: #475569; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;}
+        .day-section { margin-top: 15px; }
+        .day-title { font-weight: 700; color: #1e3a8a; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;}
         .slot-badge { 
-            display: inline-block; 
+            display: flex;
+            justify-content: space-between;
             background: #f8fafc; 
             border-left: 4px solid #10b981; 
-            padding: 8px 12px; 
-            margin: 0 0 10px 0; 
+            padding: 10px 14px; 
+            margin: 0 0 8px 0; 
             border-radius: 0 6px 6px 0;
-            width: 100%;
-            box-sizing: border-box;
             font-size: 14px;
         }
+        .slot-subject { font-weight: 600; color: #334155; }
+        .slot-code { color: #059669; font-weight: bold; background: #ecfdf5; padding: 2px 8px; border-radius: 4px; font-size: 12px;}
         .no-results { text-align: center; color: #94a3b8; margin-top: 20px; }
     </style>
 </head>
@@ -89,10 +91,11 @@
     </div>
 
     <script>
-        const csvFileName = "Remedial list for Sec 4 & 5 (2026)  - Summary_Odd Week.csv"; 
+        // Updated filename
+        const csvFileName = "odd.csv"; 
         let scheduleData = [];
 
-        // Hardcoded mapping based on your exact CSV column positions
+        // Exact column layout maps based on your CSV structure
         const columnMapping = [
             { start: 3, end: 7, day: "MONDAY" },
             { start: 8, end: 12, day: "TUESDAY" },
@@ -108,34 +111,35 @@
                 processStructuredData(results.data);
             },
             error: function() {
-                document.getElementById('loading').innerHTML = "<span style='color:red;'>Failed to load schedule file. Check file name layout.</span>";
+                document.getElementById('loading').innerHTML = "<span style='color:red;'>Failed to load odd.csv. Ensure it is uploaded to the same folder on GitHub.</span>";
             }
         });
 
         function processStructuredData(rawRows) {
             if (rawRows.length < 3) return;
             
-            // Row 1 (Index 1) holds the Subject/Dept headers
+            // Row 2 (Index 1) holds the Subject names (EL, Lit, MT - CL, Maths Dept, etc.)
             const headers = rawRows[1]; 
             
-            // Loop through students starting from Row 2 (Index 2)
+            // Loop through students starting from Row 3 (Index 2)
             for (let i = 2; i < rawRows.length; i++) {
                 let row = rawRows[i];
-                if (!row[0]) continue; // Skip if name is empty
+                if (!row[0] || row[0].trim() === "" || row[0].startsWith("ODD WEEK")) continue; 
 
                 let student = {
-                    name: row[0].trim().replace(/^"|"$/g, ''), // Clean quotes if any
+                    name: row[0].trim().replace(/^"|"$/g, ''), // Strip excess quotes if any
                     class: row[1] ? row[1].trim() : '',
                     group: row[2] ? row[2].trim() : '',
                     remedials: {}
                 };
 
-                // Check columns assigned to each day
+                // Read through assigned column maps for each day
                 columnMapping.forEach(map => {
                     let daySlots = [];
                     for (let colIdx = map.start; colIdx <= map.end; colIdx++) {
                         let cellValue = row[colIdx];
                         if (cellValue && cellValue.trim() !== "") {
+                            // Format subject header nicely (remove line breaks if present)
                             let subjectHeader = headers[colIdx] ? headers[colIdx].replace(/\n/g, ' ').trim() : "Remedial";
                             daySlots.push({
                                 subject: subjectHeader,
@@ -177,7 +181,7 @@
                 let html = `
                     <div class="student-header">
                         <span>${student.name}</span>
-                        <span class="student-class">${student.class} (${student.group})</span>
+                        <span class="student-class">${student.class} • ${student.group}</span>
                     </div>
                 `;
 
@@ -192,7 +196,8 @@
                         student.remedials[day].forEach(slot => {
                             html += `
                                 <div class="slot-badge">
-                                    <strong>${slot.subject}:</strong> ${slot.code}
+                                    <span class="slot-subject">${slot.subject}</span>
+                                    <span class="slot-code">${slot.code}</span>
                                 </div>
                             `;
                         });
