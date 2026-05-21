@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Remedial Schedule</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input { padding: 10px; width: 100%; max-width: 400px; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h2>🔍 Find Your Remedial Slot</h2>
+    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for names, subjects, or dates...">
+
+    <table id="scheduleTable">
+        <tr>
+            <th>Student Name</th>
+            <th>Subject</th>
+            <th>Teacher</th>
+            <th>Date & Time</th>
+            <th>Room</th>
+        </tr>
+        <tr>
+            <td>Alice Smith</td>
+            <td>Math</td>
+            <td>Mr. Davis</td>
+            <td>Monday, 3:00 PM</td>
+            <td>Room 204</td>
+        </tr>
+        <tr>
+            <td>Bob Jones</td>
+            <td>Chemistry</td>
+            <td>Mrs. Green</td>
+            <td>Tuesday, 4:00 PM</td>
+            <td>Lab B</td>
+        </tr>
+    </table>
+
+    <script>
+    function searchTable() {
+        let input = document.getElementById("searchInput").value.toUpperCase();
+        let table = document.getElementById("scheduleTable");
+        let tr = table.getElementsByTagName("tr");
+
+        for (let i = 1; i < tr.length; i++) {
+            let rowText = tr[i].textContent || tr[i].innerText;
+            if (rowText.toUpperCase().indexOf(input) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+        }
+    }
+    </script>
+</body>
+</html>
